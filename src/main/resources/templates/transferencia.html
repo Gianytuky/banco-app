@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Transferencia')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('operaciones')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: encabezado('bi-arrow-left-right', 'Transferencia', 'Entre cuentas de la misma moneda; se registra un retiro y un depósito enlazados')}"></div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <form th:action="@{/operaciones/transferencia}" method="post">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold"><span class="badge text-bg-danger me-2">Origen</span>Cuenta que envía</div>
+                    <div class="card-body">
+                        <label for="nro" class="form-label fw-semibold">Número de cuenta origen</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                            <input type="text" id="nro" name="nro" class="form-control" th:value="${nro}" maxlength="6" required>
+                            <button type="button" id="btnBuscarCuenta" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                        </div>
+                        <div id="infoCuenta" class="d-none"></div>
+
+                        <label for="clave" class="form-label fw-semibold mt-4">Clave de la cuenta origen</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" id="clave" name="clave" class="form-control" maxlength="4"
+                                   inputmode="numeric" autocomplete="off" placeholder="4 dígitos" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold"><span class="badge text-bg-success me-2">Destino</span>Cuenta que recibe</div>
+                    <div class="card-body">
+                        <label for="destino" class="form-label fw-semibold">Número de cuenta destino</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
+                            <input type="text" id="destino" name="destino" class="form-control" th:value="${destino}" maxlength="6" required>
+                            <button type="button" id="btnBuscarDestino" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                        </div>
+                        <div id="infoDestino" class="d-none"></div>
+
+                        <label for="monto" class="form-label fw-semibold mt-4">Monto a transferir</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold" id="simbolo">S/</span>
+                            <input type="number" id="monto" name="monto" class="form-control" th:value="${monto}"
+                                   step="0.01" min="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-warning px-4 py-2 fw-semibold">
+                <i class="bi bi-send me-1"></i>Realizar transferencia</button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+<script th:src="@{/js/banco.js}"></script>
+</body>
+</html>

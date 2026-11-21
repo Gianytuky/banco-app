@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Apertura de cuenta')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('cuentas')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: encabezado('bi-plus-circle-fill', 'Apertura de cuenta', 'El depósito inicial se registra automáticamente como primer movimiento')}"></div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <form th:action="@{/cuentas/apertura}" th:object="${form}" method="post" novalidate>
+        <div class="row g-4">
+
+            <!-- 1. Cliente -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold"><span class="badge text-bg-primary me-2">1</span>Cliente titular</div>
+                    <div class="card-body">
+                        <label for="dni" class="form-label fw-semibold">DNI del cliente</label>
+                        <div class="input-group">
+                            <input type="text" id="dni" th:field="*{dni}" class="form-control" maxlength="8"
+                                   placeholder="8 dígitos" th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid'">
+                            <button type="button" id="btnBuscarCliente" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i>Buscar</button>
+                            <div class="invalid-feedback" th:errors="*{dni}"></div>
+                        </div>
+                        <div id="infoCliente" class="d-none"></div>
+                        <div class="form-text mt-3">
+                            ¿El cliente no existe?
+                            <a th:href="@{/clientes/nuevo}">Regístrelo aquí</a>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Cuenta -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold"><span class="badge text-bg-primary me-2">2</span>Datos de la cuenta</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="tipCta" class="form-label fw-semibold">Tipo de cuenta</label>
+                            <select id="tipCta" th:field="*{tipCta}" class="form-select"
+                                    th:classappend="${#fields.hasErrors('tipCta')} ? 'is-invalid'">
+                                <option value="">-- Seleccione --</option>
+                                <option th:each="t : ${tipos}" th:value="${t.tipCta}"
+                                        th:text="${t.tipNom} + ' (' + ${t.moneda} + ')'"
+                                        th:attr="data-mancomunada=${t.mancomunada}, data-simbolo=${t.simbolo}">Soles</option>
+                            </select>
+                            <div class="invalid-feedback" th:errors="*{tipCta}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="monto" class="form-label fw-semibold">Depósito inicial</label>
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold" id="simbolo">S/</span>
+                                <input type="number" id="monto" th:field="*{monto}" class="form-control" step="0.01" min="0.01"
+                                       placeholder="0.00" th:classappend="${#fields.hasErrors('monto')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{monto}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="clave" class="form-label fw-semibold">Clave de la cuenta (4 dígitos)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <input type="password" id="clave" name="clave" class="form-control" maxlength="4"
+                                           inputmode="numeric" autocomplete="new-password"
+                                           th:classappend="${#fields.hasErrors('clave')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:errors="*{clave}"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmarClave" class="form-label fw-semibold">Confirmar clave</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                                    <input type="password" id="confirmarClave" name="confirmarClave" class="form-control" maxlength="4"
+                                           inputmode="numeric" autocomplete="new-password"
+                                           th:classappend="${#fields.hasErrors('confirmarClave')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:errors="*{confirmarClave}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Titulares adicionales (solo cuenta mancomunada) -->
+                        <div id="bloqueTitulares" class="d-none border rounded-3 p-3 bg-light">
+                            <div class="fw-semibold mb-2"><i class="bi bi-people me-1"></i>Titulares adicionales (cuenta mancomunada)</div>
+                            <div class="input-group">
+                                <input type="text" id="nuevoTitular" class="form-control" maxlength="8" placeholder="DNI del cotitular">
+                                <button type="button" id="btnAgregarTitular" class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus me-1"></i>Agregar</button>
+                            </div>
+                            <div id="avisoTitular" class="d-none"></div>
+                            <ul id="listaTitulares" class="list-group mt-3">
+                                <li th:each="d : ${form.titularesDni}" class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span th:text="${d}">12345678</span>
+                                    <input type="hidden" name="titularesDni" th:value="${d}">
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-quitar">Quitar</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a th:href="@{/cuentas}" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success px-4"><i class="bi bi-check-circle me-1"></i>Confirmar apertura</button>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+<script th:src="@{/js/banco.js}"></script>
+<script th:src="@{/js/apertura.js}"></script>
+</body>
+</html>

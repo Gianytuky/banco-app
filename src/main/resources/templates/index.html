@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('inicio')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="p-5 mb-4 bg-primary text-white rounded-4 shadow-sm">
+        <h1 class="display-6 fw-bold"><i class="bi bi-bank2 me-2"></i>Bienvenido al Sistema Bancario</h1>
+        <p class="lead mb-0">Gestione clientes, cuentas y operaciones desde un solo lugar.</p>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl">
+            <div class="card border-0 shadow-sm h-100 border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Clientes</div>
+                    <div class="fs-2 fw-bold"><i class="bi bi-people text-primary me-2"></i><span th:text="${totalClientes}">0</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl">
+            <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Cuentas</div>
+                    <div class="fs-2 fw-bold"><i class="bi bi-credit-card text-success me-2"></i><span th:text="${totalCuentas}">0</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl">
+            <div class="card border-0 shadow-sm h-100 border-start border-info border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Movimientos</div>
+                    <div class="fs-2 fw-bold"><i class="bi bi-receipt text-info me-2"></i><span th:text="${totalMovimientos}">0</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl" th:each="s : ${saldos}">
+            <div class="card border-0 shadow-sm h-100 border-start border-warning border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold" th:text="'Saldo total ' + ${s.etiqueta}">Saldo total</div>
+                    <div class="fs-2 fw-bold">
+                        <i class="bi bi-wallet2 text-warning me-2"></i>
+                        <span th:text="(${s.etiqueta == 'USD'} ? 'US$ ' : 'S/ ') + ${#numbers.formatDecimal(s.monto, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos directos -->
+    <h2 class="h5 fw-bold mb-3">Accesos rápidos</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+        <div class="col">
+            <a th:href="@{/clientes/nuevo}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-person-plus display-5 text-primary"></i>
+                    <div class="fw-semibold mt-2 text-body">Registrar cliente</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/cuentas/apertura}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-plus-circle display-5 text-success"></i>
+                    <div class="fw-semibold mt-2 text-body">Aperturar cuenta</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/operaciones/deposito}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-box-arrow-in-down display-5 text-info"></i>
+                    <div class="fw-semibold mt-2 text-body">Depósito</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/operaciones/retiro}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-box-arrow-up display-5 text-danger"></i>
+                    <div class="fw-semibold mt-2 text-body">Retiro</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/operaciones/transferencia}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-arrow-left-right display-5 text-warning"></i>
+                    <div class="fw-semibold mt-2 text-body">Transferencia</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/cuentas}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-search display-5 text-secondary"></i>
+                    <div class="fw-semibold mt-2 text-body">Consultar cuentas</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/movimientos}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-receipt display-5 text-primary"></i>
+                    <div class="fw-semibold mt-2 text-body">Movimientos</div></div></a>
+        </div>
+        <div class="col">
+            <a th:href="@{/reportes}" class="card h-100 border-0 shadow-sm text-decoration-none text-center">
+                <div class="card-body py-4"><i class="bi bi-bar-chart-line display-5 text-success"></i>
+                    <div class="fw-semibold mt-2 text-body">Reportes</div></div></a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

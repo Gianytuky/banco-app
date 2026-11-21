@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Consulta de cuentas')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('cuentas')}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start">
+        <div th:replace="~{fragments/layout :: encabezado('bi-credit-card-2-front-fill', 'Consulta de cuentas', 'Consulte titulares y saldo de cada cuenta')}"></div>
+        <a th:href="@{/cuentas/apertura}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Aperturar cuenta</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/cuentas}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="dni" class="form-label fw-semibold">DNI del titular</label>
+                    <input type="text" id="dni" name="dni" class="form-control" th:value="${dni}" maxlength="8" placeholder="Ej: 45678912">
+                </div>
+                <div class="col-md-4">
+                    <label for="nro" class="form-label fw-semibold">Número de cuenta</label>
+                    <input type="text" id="nro" name="nro" class="form-control" th:value="${nro}" maxlength="6" placeholder="Ej: 100001">
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-search me-1"></i>Buscar</button>
+                    <a th:href="@{/cuentas}" class="btn btn-outline-secondary flex-fill">Ver todas</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-list-ul me-1"></i>Cuentas
+            <span class="badge text-bg-primary ms-2" th:text="${#lists.size(cuentas)}">0</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>N° cuenta</th>
+                    <th>Titulares</th>
+                    <th>Tipo</th>
+                    <th>Moneda</th>
+                    <th class="text-end">Saldo actual</th>
+                    <th>Estado</th>
+                    <th>Fecha de apertura</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(cuentas)}">
+                    <td colspan="8" class="text-center text-muted py-4">No se encontraron cuentas</td>
+                </tr>
+                <tr th:each="c : ${cuentas}">
+                    <td class="fw-bold" th:text="${c.nroCta}">100001</td>
+                    <td>
+                        <span th:each="t : ${c.titulares}" class="badge text-bg-light border me-1" th:text="${t.cliNom}">Titular</span>
+                    </td>
+                    <td th:text="${c.tipoCuenta.tipNom}">Soles</td>
+                    <td><span class="badge text-bg-info" th:text="${c.tipoCuenta.moneda}">PEN</span></td>
+                    <td class="text-end fw-semibold"
+                        th:text="${c.tipoCuenta.simbolo} + ' ' + ${#numbers.formatDecimal(c.saldoCta, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td>
+                    <td>
+                        <span class="badge" th:text="${c.estado}"
+                              th:classappend="${c.estado == 'ACTIVA'} ? 'text-bg-success' : (${c.estado == 'BLOQUEADA'} ? 'text-bg-warning' : 'text-bg-secondary')">ACTIVA</span>
+                    </td>
+                    <td th:text="${#temporals.format(c.fechaApertura, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+                    <td class="text-end text-nowrap">
+                        <a th:href="@{/movimientos(nro=${c.nroCta})}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-receipt me-1"></i>Movimientos</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Compilados
+target/
+
+# Configuración con claves (no subir)
+src/main/resources/application-local.properties
+
+# VS Code e IDEs
+.vscode/
+.idea/
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log

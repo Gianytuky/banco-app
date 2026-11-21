@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Retiro')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('operaciones')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: encabezado('bi-box-arrow-up', 'Retiro', 'Requiere la clave de la cuenta y saldo disponible (movimiento tipo R)')}"></div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="@{/operaciones/retiro}" method="post">
+                        <label for="nro" class="form-label fw-semibold">Número de cuenta</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                            <input type="text" id="nro" name="nro" class="form-control" th:value="${nro}" maxlength="6"
+                                   placeholder="Ej: 100001" required>
+                            <button type="button" id="btnBuscarCuenta" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i>Buscar</button>
+                        </div>
+                        <div id="infoCuenta" class="d-none"></div>
+
+                        <label for="monto" class="form-label fw-semibold mt-4">Monto a retirar</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold" id="simbolo">S/</span>
+                            <input type="number" id="monto" name="monto" class="form-control" th:value="${monto}"
+                                   step="0.01" min="0.01" placeholder="0.00" required>
+                        </div>
+
+                        <label for="clave" class="form-label fw-semibold mt-4">Clave de la cuenta</label>
+                        <div class="input-group mb-4">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" id="clave" name="clave" class="form-control" maxlength="4"
+                                   inputmode="numeric" autocomplete="off" placeholder="4 dígitos" required>
+                        </div>
+                        <div class="form-text mb-3">Después de 3 claves incorrectas la cuenta se bloquea.</div>
+
+                        <button type="submit" class="btn btn-danger w-100 py-2">
+                            <i class="bi bi-check-circle me-1"></i>Registrar retiro</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+<script th:src="@{/js/banco.js}"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registro de cliente')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('clientes')}"></nav>
+
+<main class="container py-4">
+    <th:block th:if="${nuevo}">
+        <div th:replace="~{fragments/layout :: encabezado('bi-person-plus-fill', 'Registro de cliente', 'Consulte el DNI para obtener los nombres y complete los demás datos')}"></div>
+    </th:block>
+    <th:block th:unless="${nuevo}">
+        <div th:replace="~{fragments/layout :: encabezado('bi-pencil-square', 'Editar cliente', 'Actualice los datos de contacto')}"></div>
+    </th:block>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form th:action="@{${accion}}" th:object="${form}" method="post" novalidate>
+
+                        <!-- DNI -->
+                        <div class="mb-3">
+                            <label for="dni" class="form-label fw-semibold">DNI</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                                <input type="text" id="dni" th:field="*{dni}" class="form-control" maxlength="8"
+                                       placeholder="8 dígitos" th:readonly="${!nuevo}"
+                                       th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid'">
+                                <button type="button" id="btnDni" class="btn btn-primary" th:if="${nuevo}">
+                                    <i class="bi bi-cloud-download me-1"></i>Consultar DNI</button>
+                                <div class="invalid-feedback" th:errors="*{dni}"></div>
+                            </div>
+                            <div id="avisoDni" class="d-none"></div>
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label fw-semibold">Nombres y apellidos</label>
+                            <input type="text" id="nombre" th:field="*{nombre}" class="form-control"
+                                   placeholder="Se completa al consultar el DNI"
+                                   th:readonly="${!nuevo or !#fields.hasErrors('nombre')}"
+                                   th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:errors="*{nombre}"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                    <input type="text" id="telefono" th:field="*{telefono}" class="form-control" maxlength="15"
+                                           th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:errors="*{telefono}"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ruc" class="form-label fw-semibold">RUC <span class="text-muted fw-normal">(opcional)</span></label>
+                                <input type="text" id="ruc" th:field="*{ruc}" class="form-control" maxlength="11"
+                                       th:classappend="${#fields.hasErrors('ruc')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{ruc}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" id="email" th:field="*{email}" class="form-control"
+                                       placeholder="cliente@gmail.com"
+                                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{email}"></div>
+                            </div>
+                            <div class="form-text" th:if="${nuevo}">A este correo se enviará la confirmación de registro.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="direccion" class="form-label fw-semibold">Dirección</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                <input type="text" id="direccion" th:field="*{direccion}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:errors="*{direccion}"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/clientes}" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="bi bi-save me-1"></i>Guardar cliente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+<script th:src="@{/js/banco.js}"></script>
+<script th:src="@{/js/cliente-form.js}"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reportes')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('reportes')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: encabezado('bi-bar-chart-line-fill', 'Reportes bancarios', 'Resumen general y movimientos por rango de fechas')}"></div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <!-- Indicadores -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Clientes registrados</div>
+                    <div class="fs-1 fw-bold text-primary" th:text="${totalClientes}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-info border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Cuentas aperturadas</div>
+                    <div class="fs-1 fw-bold text-info" th:text="${totalCuentas}">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Total de depósitos</div>
+                    <div th:each="f : ${depositos}" class="d-flex justify-content-between">
+                        <span><span class="badge text-bg-light border" th:text="${f.etiqueta}">PEN</span>
+                              <small class="text-muted" th:text="${f.cantidad} + ' mov.'">0 mov.</small></span>
+                        <span class="fw-bold text-success"
+                              th:text="(${f.etiqueta == 'USD'} ? 'US$ ' : 'S/ ') + ${#numbers.formatDecimal(f.monto, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(depositos)}" class="text-muted">Sin datos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100 border-start border-danger border-4">
+                <div class="card-body">
+                    <div class="text-muted small text-uppercase fw-semibold">Total de retiros</div>
+                    <div th:each="f : ${retiros}" class="d-flex justify-content-between">
+                        <span><span class="badge text-bg-light border" th:text="${f.etiqueta}">PEN</span>
+                              <small class="text-muted" th:text="${f.cantidad} + ' mov.'">0 mov.</small></span>
+                        <span class="fw-bold text-danger"
+                              th:text="(${f.etiqueta == 'USD'} ? 'US$ ' : 'S/ ') + ${#numbers.formatDecimal(f.monto, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(retiros)}" class="text-muted">Sin datos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="text-muted small mb-4">Los totales de depósitos incluyen los depósitos por apertura y las transferencias recibidas; los de retiros incluyen las transferencias enviadas. Se muestran por moneda (no se suman soles con dólares).</p>
+
+    <!-- Cuentas por tipo -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold"><i class="bi bi-pie-chart me-1"></i>Cuentas por tipo</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr><th>Tipo de cuenta</th><th class="text-end">Cantidad de cuentas</th><th class="text-end">Saldo acumulado</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${porTipo}">
+                    <td class="fw-semibold" th:text="${f.etiqueta}">Soles</td>
+                    <td class="text-end"><span class="badge text-bg-primary" th:text="${f.cantidad}">0</span></td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(f.monto, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Movimientos por rango de fechas -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold"><i class="bi bi-calendar-range me-1"></i>Movimientos por rango de fechas</div>
+        <div class="card-body border-bottom">
+            <form th:action="@{/reportes}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="desde" class="form-label fw-semibold">Desde</label>
+                    <input type="date" id="desde" name="desde" class="form-control" th:value="${desde}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="hasta" class="form-label fw-semibold">Hasta</label>
+                    <input type="date" id="hasta" name="hasta" class="form-control" th:value="${hasta}" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Consultar</button>
+                </div>
+            </form>
+        </div>
+        <div class="table-responsive" th:if="${movs != null}">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Fecha</th><th>Cuenta</th><th>N°</th><th>Tipo</th><th>Descripción</th>
+                    <th class="text-end">Monto</th><th class="text-end">Saldo posterior</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(movs)}">
+                    <td colspan="7" class="text-center text-muted py-4">No hay movimientos en ese rango</td>
+                </tr>
+                <tr th:each="m : ${movs}">
+                    <td th:text="${#temporals.format(m.fechaMov, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+                    <td class="fw-semibold" th:text="${m.id.nroCta}">100001</td>
+                    <td th:text="${m.id.nroMov}">1</td>
+                    <td>
+                        <span class="badge text-bg-success" th:if="${m.tipoMov == 'D'}">Depósito</span>
+                        <span class="badge text-bg-danger" th:if="${m.tipoMov == 'R'}">Retiro</span>
+                    </td>
+                    <td th:text="${m.descripcion}">Descripción</td>
+                    <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(m.montoMov, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(m.saldoPost, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-body text-muted" th:if="${movs == null}">Seleccione un rango de fechas y presione <strong>Consultar</strong>.</div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>

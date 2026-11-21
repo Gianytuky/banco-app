@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Movimientos')}"></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/layout :: navbar('movimientos')}"></nav>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: encabezado('bi-receipt', 'Consulta de movimientos', 'Depósitos y retiros con su saldo actual')}"></div>
+
+    <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/movimientos}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label for="nro" class="form-label fw-semibold">Número de cuenta</label>
+                    <input type="text" id="nro" name="nro" class="form-control" th:value="${nro}" maxlength="6" placeholder="Ej: 100001" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Consultar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <th:block th:if="${cuenta != null}">
+        <!-- Resumen de la cuenta -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100 border-start border-primary border-4">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-semibold">Saldo actual</div>
+                        <div class="fs-2 fw-bold text-primary"
+                             th:text="${cuenta.tipoCuenta.simbolo} + ' ' + ${#numbers.formatDecimal(cuenta.saldoCta, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+                        <div class="small text-muted">
+                            Cuenta <strong th:text="${cuenta.nroCta}">100001</strong> &middot;
+                            <span th:text="${cuenta.tipoCuenta.tipNom}">Soles</span>
+                            <span class="badge ms-1" th:text="${cuenta.estado}"
+                                  th:classappend="${cuenta.estado == 'ACTIVA'} ? 'text-bg-success' : (${cuenta.estado == 'BLOQUEADA'} ? 'text-bg-warning' : 'text-bg-secondary')">ACTIVA</span>
+                        </div>
+                        <div class="small mt-1"><i class="bi bi-people me-1"></i><span th:text="${cuenta.titularesTexto}">Titulares</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-semibold">Total depósitos</div>
+                        <div class="fs-3 fw-bold text-success"
+                             th:text="${cuenta.tipoCuenta.simbolo} + ' ' + ${#numbers.formatDecimal(totalDepositos, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 border-start border-danger border-4">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-semibold">Total retiros</div>
+                        <div class="fs-3 fw-bold text-danger"
+                             th:text="${cuenta.tipoCuenta.simbolo} + ' ' + ${#numbers.formatDecimal(totalRetiros, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movimientos -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">
+                <i class="bi bi-list-ul me-1"></i>Movimientos
+                <span class="badge text-bg-primary ms-2" th:text="${#lists.size(movs)}">0</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>N°</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th class="text-end">Monto</th>
+                        <th class="text-end">Saldo anterior</th>
+                        <th class="text-end">Saldo posterior</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(movs)}">
+                        <td colspan="7" class="text-center text-muted py-4">La cuenta no tiene movimientos</td>
+                    </tr>
+                    <tr th:each="m : ${movs}">
+                        <td th:text="${m.id.nroMov}">1</td>
+                        <td th:text="${#temporals.format(m.fechaMov, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+                        <td>
+                            <span class="badge text-bg-success" th:if="${m.tipoMov == 'D'}">Depósito</span>
+                            <span class="badge text-bg-danger" th:if="${m.tipoMov == 'R'}">Retiro</span>
+                        </td>
+                        <td th:text="${m.descripcion}">Descripción</td>
+                        <td class="text-end fw-semibold" th:classappend="${m.tipoMov == 'D'} ? 'text-success' : 'text-danger'"
+                            th:text="${(m.tipoMov == 'D' ? '+ ' : '- ') + #numbers.formatDecimal(m.montoMov, 1, 'COMMA', 2, 'POINT')}">+ 0.00</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(m.saldoAnt, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                        <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(m.saldoPost, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </th:block>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:replace="~{fragments/layout :: scripts}"></script>
+</body>
+</html>
